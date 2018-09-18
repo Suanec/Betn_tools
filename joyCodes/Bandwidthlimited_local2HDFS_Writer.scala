@@ -162,7 +162,7 @@ object Bandwidthlimited_local2HDFS_Writer {
       .split("\n")
       .map(srcParentPath + "/" + _)
       .mkString(";")
-    val remoteTarPath = "/user/feed_weibo/enzhao/docker/upload/${IP}/${date}/"
+    val remoteTarPath = "/user/feed/enzhao/docker/upload/${IP}/${date}/"
     val taskList = LocalLogPathMapper(taskListPath,remoteTarPath)
     LocalLogReducer2HDFS(sc,taskList, bandwidth)
   }

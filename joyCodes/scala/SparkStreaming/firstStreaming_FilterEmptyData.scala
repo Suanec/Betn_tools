@@ -1,10 +1,6 @@
 import org.apache.spark.streaming._
 val ssc = new StreamingContext(sc, Seconds(20))
 val lines = ssc.socketTextStream("localhost", 9999)
-// lines.count match {
-//   case dstream.Dstream[0L] => lines.print
-//   case _ => lines.saveAsTextFiles("/user/feed_weibo/enzhao/streaming/2018_02_11/modelServiceLog")
-// }
 lines.map(_.split(" ")).map(x => x -> 1).reduceByKey(_ + _).print
 ssc.start
 
