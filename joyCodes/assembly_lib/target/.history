@@ -1,0 +1,11 @@
+clean
+compile
+exit
+clean
+compile
+assembly
+exit
+clean
+package
+:q
+exit

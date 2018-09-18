@@ -4,3 +4,42 @@
 *.idea/*
 *.pyc
 *.class
+ maven
+target/
+project/project
+
+# eclipse ignore
+.settings/
+.project
+.classpath
+.metadata
+.gitignore
+
+# idea ignore
+.idea/
+*.ipr
+*.iml
+*.iws
+
+# temp ignore
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
+*.swp
+*.swo
+
+# system ignore
+.DS_Store
+Thumbs.db
+
+# C/C++
+*.o
+logs
+/build/
+data-flow-2.0.0-SNAPSHOT-shade.jar
+client/weiclient/libs/com/weibo/weibox/yarn/ksp
+client/history/origin_python_non_reflect_weiclient
+client/release/weiclient-run-origin
+client/release/weiclient-run
