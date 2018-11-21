@@ -99,6 +99,49 @@ def sigmoid(_x = 0.):
     # print _x
     return 1.0 / (1.0 + math.exp(-_x));
 
+# auc with a formular I don't know how to work..
+# Params is a list with tuple contains (precision, label)
+# Return a float auc value
+# 
+def auc_only_distinct(_pr_label_tuple_seq = []):
+  _pr_label_tuple_seq.sort(key=lambda pair : pair[0])
+  positive_sample_count = sum([1 for pair in _pr_label_tuple_seq if pair[1] == 1 ])
+  negtive_sample_count = len(_pr_label_tuple_seq) - positive_sample_count
+  sigma = 1.0 * \
+    sum(
+      [ pair[0] for pair in
+        zip(range(1, 1 + len(_pr_label_tuple_seq)), _pr_label_tuple_seq)
+        if pair[1][1] == 1])
+  return (sigma - (positive_sample_count + 1) * positive_sample_count / 2) / positive_sample_count / negtive_sample_count
+
+# auc with Wilcoxon-Mann-Witney Test and dynamic programming
+# same as auc_only_distinct when precision is distinct and same precision all is postive sample
+# is different from auc_only_distinct when same precision but not all positive sample
+# Params is a list with tuple contains (precision, label)
+# Return a float auc value
+# 
+def auc(_pr_label_tuple_seq = []):
+  _pr_label_tuple_seq.sort(key=lambda pair : pair[0])
+  _pr_seq = [ i[0] for i in _pr_label_tuple_seq ]
+  _pr_rank_tuple_dict = {}
+  _pr_rank_tuple_seq = zip(_pr_seq, range(1, len(_pr_label_tuple_seq)+1))
+  for _pr_rank_tuple in _pr_rank_tuple_seq:
+    precision = _pr_rank_tuple[0]
+    rank = _pr_rank_tuple[1]
+    if(_pr_rank_tuple_dict.has_key(precision)):
+         _rank_count_tuple = _pr_rank_tuple_dict[precision]
+         old_count = _rank_count_tuple[1]
+         new_count = old_count + 1
+         rank = (_rank_count_tuple[0] * old_count + rank) / new_count
+         _pr_rank_tuple_dict[precision] = (rank, new_count)
+    else:
+         _pr_rank_tuple_dict[precision] = (rank * 1.0, 1)
+  positive_sample_count = sum([1 for pair in _pr_label_tuple_seq if pair[1] == 1 ])
+  negtive_sample_count = len(_pr_label_tuple_seq) - positive_sample_count
+  sigma = 1.0 * sum([ _pr_rank_tuple_dict.get(pair[0])[0] for pair in _pr_label_tuple_seq if pair[1] == 1])
+  return (sigma - (positive_sample_count + 1) * positive_sample_count / 2) / positive_sample_count / negtive_sample_count
+
+
 def resolveSigmoid(_r = 0.):
   import math
   r = (1.0 / _r) - 1.0
