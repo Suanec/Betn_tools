@@ -8,7 +8,7 @@ import org.apache.spark.SparkConf
 
 object dataCount {
   def main(args : Array[String]) = {
-    println("args : srcDir")
+    println("args : srcDir, isSaveRst")
     val srcDir : String = args.head
 
     val appName = srcDir + " -- DataCount "
@@ -16,11 +16,18 @@ object dataCount {
     val sc_count = new SparkContext(conf)
     println(sc_count.getConf)
 
+    val isSaveRst : Boolean = args.size match {
+      case 2 => args(1).toBoolean
+      case _ => true
+    }
     val data = sc_count.textFile(srcDir)
-    val srcCount = data.count
-    val srcSizeCount = srcDir + "_HAS_" + srcCount
     println("Doing Count...")
-    sc_count.parallelize(Array(srcCount)).saveAsTextFile(srcSizeCount)
+    val srcCount = data.count
+    println(s"src size count : ${srcCount} ")
+    if(isSaveRst) {
+      val srcSizeCount = srcDir + "_HAS_" + srcCount
+      sc_count.parallelize(Array(srcCount)).saveAsTextFile(srcSizeCount)
+    }
     println("Count Done...")
   }
 }
