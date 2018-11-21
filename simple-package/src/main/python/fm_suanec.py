@@ -32,7 +32,13 @@ def load_weifm(_path = ""):
     modelv = modelc[v_index+1:]
     _w = [] 
     for i in modelw:
+        w_split = i.split(":")
+        w_cur_idx = int(w_split[0])
+        while(w_idx + 1 < w_cur_idx):
+            _w.append(0.)
+            w_idx += 1
         _w.append(float(i.split(":")[1].strip()))
+        w_idx += 1
     print 'w read done.'
     assert len(_w) == feature_size
     print_batch = int(feature_size * 0.1)
