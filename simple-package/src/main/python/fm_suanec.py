@@ -30,17 +30,14 @@ def load_weifm(_path = ""):
     print 'w0 read done.'
     modelw = modelc[w_index+1:v_index]
     modelv = modelc[v_index+1:]
-    _w = [] 
+    _w = [0.] * feature_size
     for i in modelw:
         w_split = i.split(":")
-        w_cur_idx = int(w_split[0])
-        while(w_idx + 1 < w_cur_idx):
-            _w.append(0.)
-            w_idx += 1
-        _w.append(float(i.split(":")[1].strip()))
-        w_idx += 1
+        w_cur_idx = int(w_split[0].strip())
+        _w[w_cur_idx -1] = float(i.split(":")[1].strip())
     print 'w read done.'
     assert len(_w) == feature_size
+    assert len([i for i in _w if i != 0 ]) == len(modelw)
     print_batch = int(feature_size * 0.1)
     _v = []
     for i in modelv:
@@ -59,16 +56,29 @@ def load_sample(_path = ''):
   return map(
     lambda line: map(
       lambda kv : kv.strip().split(":"),
-      line.split(' ')[1:]),
+      line.strip().split(',')[1:]),
     open(_path,"r").readlines()
     )
 def load_sample(_path = ''):
   return map(
     lambda line: map(
       lambda kv : kv.strip().split(":"),
-      line.split(',')[1:]),
+      line.strip().split(' ')[1:]),
     open(_path,"r").readlines()
     )
+def load_label(_path = ''):
+    return [float(line.strip().split(' ')[0]) for line in open(_path,"r").readlines()]
+
+def rst_auc(_sample_path = '', _model_path = ''): 
+    model_path = _model_path
+    sample_path = _sample_path
+    samples = load_sample(sample_path)
+    labels = load_label(sample_path)
+    (w0, w, v) = load_weifm(model_path)
+    rst = [fm_calc(xi, w, v, w0) for xi in samples]
+    aucIn = zip(rst,labels)
+    return auc(aucIn)
+
         
 # v : featureRange * rank
 def fm_calcV(_x = [], _v = []):
@@ -168,9 +178,13 @@ if __name__ == '__main__':
      print 'model_path sample_path rst_path '
      model_path = sys.argv[1]
      sample_path = sys.argv[2]
-     rst_path = sys.argv[3] 
-     (w0, w, v) = load_weifm(model_path)
-     samples = load_sample(sample_path)
-     rst = map(lambda xi : fm_calc(xi, w, v, w0), samples)
-     with open(rst_path,'w') as writer:
-         map(lambda line : writer.write(str(line) + "\n"),rst)
+     # print rst_auc(sample_path,model_path)
+     print rst_auc(_model_path=model_path, _sample_path=sample_path)
+     # exit(0)
+     if(len(sys.argv) > 3): 
+         rst_path = sys.argv[3]
+         (w0, w, v) = load_weifm(model_path)
+         samples = load_sample(sample_path)
+         rst = map(lambda xi : fm_calc(xi, w, v, w0), samples)
+         with open(rst_path,'w') as writer:
+             map(lambda line : writer.write(str(line) + "\n"),rst)
